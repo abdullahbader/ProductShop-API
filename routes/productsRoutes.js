@@ -1,3 +1,5 @@
+const passport =require("passport")
+const {fetchShop} = require("../controllers/shopsController ")
 const multer = require("multer");
 const {
   productDelete,
@@ -23,8 +25,9 @@ const upload = multer({
 router.param("productId", async (req, res, next, productId) => {
   const product = await fetchProduct(productId, next);
   if (product) {
+    const shop = await fetchShop(shopId, next);
     req.product = product;
-
+    req.shop = shop;
     next();
   } else {
     const err = new Error("product not found");
@@ -35,6 +38,6 @@ router.param("productId", async (req, res, next, productId) => {
 
 router.get("/", productList);
 
-router.delete("/:productId", productDelete);
-router.put("/:productId", upload.single("image"), productUpdate);
+router.delete("/:productId",passport.authenticate("jwt", { session: false }), productDelete);
+router.put("/:productId",passport.authenticate("jwt", { session: false }), upload.single("image"), productUpdate);
 module.exports = router;

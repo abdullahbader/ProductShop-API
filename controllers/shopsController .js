@@ -1,6 +1,6 @@
 const { Shop } = require("../db/models");
 const { Product } = require("../db/models");
-
+const {User} =require("../db/models")
 exports.fetchShop = async (shopId, next) => {
   try {
     const shop = await Shop.findByPk(shopId);
@@ -10,11 +10,16 @@ exports.fetchShop = async (shopId, next) => {
   }
 };
 
+
+
+
 exports.shopCreat = async (req, res, next) => {
+  console.log(req.user) 
   try {
     if (req.file) {
       req.body.image = `http://${req.get("host")}/${req.file.path}`;
     }
+    req.body.userId = req.user.id;
     const newShop = await Shop.create(req.body);
     res.status(201).json(newShop);
   } catch (error) {
@@ -24,6 +29,8 @@ exports.shopCreat = async (req, res, next) => {
 
 exports.productCreat = async (req, res, next) => {
   try {
+     if (req.shop.userId !== req.user.id)
+    throw { status: 401, message: "you can not craete a product" };
     if (req.file) {
       req.body.image = `http://${req.get("host")}/${req.file.path}`;
     }

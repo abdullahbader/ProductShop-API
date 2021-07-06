@@ -2,15 +2,24 @@ const express = require("express");
 const cors = require("cors");
 const productsRoutes = require("./routes/productsRoutes");
 const shopsRoutes = require("./routes/shopsRoutes");
+const usersRoutes = require("./routes/usersRoutes");
+const passport =require("passport")
+const { localStrategy ,jwtStrategy} = require("./middleware/passport");
+
 
 const app = express();
 app.use(cors());
 
 app.use(express.json());
 
+app.use(passport.initialize());
+passport.use(localStrategy);
+passport.use(jwtStrategy);
+
+app.use(usersRoutes);
+
 app.use("/products", productsRoutes);
 app.use("/shops", shopsRoutes);
-
 app.use("/media", express.static("media"));
 
 //error middleware
